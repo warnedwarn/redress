@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #14110e;
+}
+
+@layer base {
+  ::selection {
+    background: #c4633f;
+    color: #14110e;
+  }
+}
+
+@layer utilities {
+  .kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    font-size: 0.68rem;
+    font-weight: 600;
+  }
+  .smallcaps {
+    font-variant: small-caps;
+    letter-spacing: 0.08em;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .rule {
+    height: 1px;
+    background: rgba(239, 231, 216, 0.18);
+  }
+  .focus-ring:focus-visible {
+    outline: 2px solid #c4633f;
+    outline-offset: 2px;
+  }
+  .drop-first::first-letter {
+    initial-letter: 2;
+    font-family: var(--font-newsreader), Georgia, serif;
+    font-weight: 600;
+    color: #c4633f;
+    margin-right: 0.06em;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #14110e;
+}
+::-webkit-scrollbar-thumb {
+  background: #352c22;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c4633f;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
