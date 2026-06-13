@@ -87,39 +87,36 @@ export function Hero({ onFile, stats }: Props) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="mt-12 grid grid-cols-3 divide-x divide-cream/15 border-y border-cream/15"
+          className="mt-12 flex flex-wrap items-baseline gap-x-3 gap-y-2 border-l-2 border-terra/60 pl-5 font-display text-2xl font-500 text-cream"
         >
-          {[
-            { k: 'Cases filed', v: stats ? stats.total : '\u2014' },
-            { k: 'Ruled', v: stats ? stats.ruled : '\u2014' },
-            { k: 'Upheld', v: stats ? stats.upheld : '\u2014' },
-          ].map((s) => (
-            <div key={s.k} className="px-5 py-5">
-              <div className="tabular font-display text-4xl font-500 text-cream">{s.v}</div>
-              <div className="kicker mt-2 text-taupe">{s.k}</div>
-            </div>
-          ))}
+          <span className="tabular text-terra">{stats ? stats.total : '\u2014'}</span>
+          <span className="text-sand">cases on the docket,</span>
+          <span className="tabular text-terra">{stats ? stats.ruled : '\u2014'}</span>
+          <span className="text-sand">ruled,</span>
+          <span className="tabular text-terra">{stats ? stats.upheld : '\u2014'}</span>
+          <span className="text-sand">upheld in full.</span>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-xs text-taupe"
+          className="mt-6 font-mono text-xs leading-relaxed text-taupe"
         >
-          <span className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-terra" /> Live on Bradbury
-          </span>
-          <span className="flex items-center gap-2">
-            Contract {shortAddr(CONTRACT_ADDRESS)}
+          <span className="inline-flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-terra" /> Live on Bradbury, contract
+            <a href={`${EXPLORER}/address/${CONTRACT_ADDRESS}`} target="_blank" rel="noopener noreferrer" className="focus-ring text-sand hover:text-terra">
+              {shortAddr(CONTRACT_ADDRESS)}
+            </a>
             <CopyButton value={CONTRACT_ADDRESS} label="Copy contract address" />
           </span>
-          <a href={FAUCET} target="_blank" rel="noopener noreferrer" className="focus-ring text-terra hover:underline">
-            Claim test GEN
-          </a>
-          <a href={`${EXPLORER}/address/${CONTRACT_ADDRESS}`} target="_blank" rel="noopener noreferrer" className="focus-ring hover:text-cream">
-            Explorer
-          </a>
+          <span className="mt-1 block">
+            Need test GEN to file?{' '}
+            <a href={FAUCET} target="_blank" rel="noopener noreferrer" className="focus-ring text-terra hover:underline">
+              Claim it from the faucet
+            </a>
+            .
+          </span>
         </motion.div>
       </div>
     </section>
