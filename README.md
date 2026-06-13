@@ -1,93 +1,60 @@
-_In the matter of_
+```
+================================================================
+  R E D R E S S            on-chain small-claims court
+  Docket of record . GenLayer Bradbury Testnet . Chain 4221
+================================================================
+```
 
-# Redress
+**Redress, No. 001** , a court with no judge on a payroll. A claimant files a grievance and names the remedy they want. The other side answers, and that answer convenes the bench: an AI magistrate weighs both filings and enters **UPHELD**, **SPLIT**, or **DISMISSED** with a fault score against the respondent. The verdict is not one machine's private call, every GenLayer validator re-hears the case and they must agree before it is entered on the docket. No deposits, no custody, network fees only.
 
-### an on-chain small-claims court
-
-There is no judge on a payroll here. A claimant files a grievance and names the remedy they want. The other party answers, and that answer is what convenes the court: an AI magistrate weighs both sides and rules **UPHELD**, **SPLIT**, or **DISMISSED**, assigning a fault score to the respondent. The ruling is not one machine's opinion in a database. Every GenLayer validator re-hears the case and they must agree before the judgment is entered on the docket. No deposits, no custody, only network fees.
-
-> Live court: https://warnedwarn.github.io/redress/
-> Contract of record: [0x205651dEfaB269eDa5B1880E0a96f1C8aE777d6F](https://explorer-bradbury.genlayer.com/address/0x205651dEfaB269eDa5B1880E0a96f1C8aE777d6F) on GenLayer Bradbury
-> Empaneled by tx [0x45a24c4d...46d08](https://explorer-bradbury.genlayer.com/tx/0x45a24c4dc08acd41f7323a32ab392e02f792abab5b559e36ccdec511b5446d08)
+Sitting now at **[warnedwarn.github.io/redress](https://warnedwarn.github.io/redress/)** , contract **[0x205651dE…777d6F](https://explorer-bradbury.genlayer.com/address/0x205651dEfaB269eDa5B1880E0a96f1C8aE777d6F)** , empaneled by tx **[0x45a24c4d…46d08](https://explorer-bradbury.genlayer.com/tx/0x45a24c4dc08acd41f7323a32ab392e02f792abab5b559e36ccdec511b5446d08)**.
 
 ---
 
-### Why this belongs on a chain
+### Art. 1 , Jurisdiction (why a chain hears this)
 
-Any single server that resolves disputes is just an unaccountable referee. The point of Redress is that the verdict is reproducible and adversarial: many validators run the same magistrate over the same two filings and have to land on the same ruling, or nothing is recorded. That is the part GenLayer makes possible and an ordinary backend cannot. There is no backend to speak of, the contract holds every case, both parties' filings, the verdict, the fault score, and the docket log under consensus. The site is a static reading room over that record.
+A lone server that resolves disputes is an unaccountable referee. Redress moves the verdict under consensus: many validators run the same magistrate over the same two filings and must reach the same ruling, or nothing is recorded. That reproducible, adversarial judgment over subjective evidence is the thing GenLayer makes possible and a plain backend cannot. There is no backend, the contract is the court of record. It holds every case, both parties' words, the verdict, the fault score, and the docket log. The website is a static gallery onto that record; close it and the court still sits.
 
-### The rule that shapes everything: two real sides
+### Art. 2 , Standing requires two parties
 
-Most on-chain AI apps judge one submission from one person. Redress needs two. A grievance alone does nothing; filing the **defense** is the act that triggers the hearing. And the contract refuses a defense from the claimant's own address, so a case is never decided on one voice. This is enforced in code, not merely asked for in the prompt.
+This is the clause that shapes the whole design, and the reason Redress is not just another single-submission judge. A grievance alone does nothing. Filing the **defense** is the act that opens the hearing, and the contract refuses a defense from the claimant's own address. A case is therefore never decided on one voice, and that requirement lives in code (`file_defense` rejects `respondent == claimant`), not in a polite prompt instruction.
 
-### Order of proceedings
+### Art. 3 , Order of proceedings
 
-1. **The complaint.** `file_grievance(title, remedy, grievance)` opens a case on the public docket. Deterministic, no AI, cheap. It validates lengths and records the claimant.
-2. **The answer.** A different wallet calls `file_defense(case_id, defense)`. The contract rejects an empty or oversized answer, a case that is already ruled, and crucially an answer from the claimant.
-3. **The hearing.** Inside `_adjudicate`, an injection-resistant prompt presents the title, remedy, grievance, and defense as untrusted data. The magistrate returns `{ruling, fault, opinion}`. Fault is the share assigned to the respondent: UPHELD sits high (65-100), SPLIT in the middle (35-64), DISMISSED low (0-34).
-4. **The panel.** A custom validator (`gl.vm.run_nondet_unsafe`) has every validator re-run the hearing. The ruling word must match exactly; the fault score must agree within tolerance (the larger of 20 points or 20 percent). Disagreement rotates the leader. Errors are classified so even failures reach consensus.
-5. **The judgment.** A deterministic backstop clamps the fault into the band its ruling requires, then the case flips to RULED and the verdict is appended to the docket for good.
+> **i.** `file_grievance(title, remedy, grievance)` opens a case on the public docket. Deterministic, cheap, no AI. Lengths are validated; the claimant is recorded.
+>
+> **ii.** A different wallet calls `file_defense(case_id, defense)`. Rejected if empty, oversized, already ruled, or filed by the claimant.
+>
+> **iii.** `_adjudicate` presents title, remedy, grievance, and defense to an injection-resistant prompt as untrusted data. The magistrate returns `{ruling, fault, opinion}`; fault is the respondent's share , UPHELD 65-100, SPLIT 35-64, DISMISSED 0-34.
+>
+> **iv.** A custom validator (`gl.vm.run_nondet_unsafe`) has every validator re-hear the case. The ruling word must match exactly; the fault must agree within tolerance (max of 20 points or 20 percent). Disagreement rotates the leader. Error classes are compared so even failures reach consensus.
+>
+> **v.** A deterministic backstop clamps fault into its ruling's band, the case flips to RULED, and the verdict is appended to the docket for good.
 
-### The record, in storage
+### Art. 4 , The record (storage and surface)
 
-Cases are JSON in a `TreeMap[str, str]` keyed by id, with a `DynArray[str]` of ids for ordered paging and `u256` tallies (`total_cases`, `total_ruled`, `total_upheld`) so statistics never scan. Runner pinned to `py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6`.
+Cases are JSON in `TreeMap[str, str]` keyed by id, with a `DynArray[str]` of ids for ordered paging and `u256` tallies (`total_cases`, `total_ruled`, `total_upheld`) so statistics never scan. Runner pinned to `py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6`. The clerk answers four reads , `get_cases(start)`, `get_case(id)`, `get_docket(start)`, `get_stats()` , each paged at twenty.
 
-Public methods of record:
+### Art. 5 , The gallery (frontend)
 
-- `file_grievance(title, remedy, grievance) -> id` , opens a case (deterministic)
-- `file_defense(case_id, defense)` , answers and triggers the AI hearing (the consensus write)
-- `get_cases(start)` , paged docket, 20 at a time
-- `get_case(case_id)` , one case in full
-- `get_docket(start)` , the append-only event log
-- `get_stats()` , running tallies
+Next.js 14 static export, TypeScript, Tailwind, Framer Motion, lucide icons, genlayer-js 1.1.8. Dressed as a printed law report: warm near-black stock, muted terracotta, a Newsreader serif masthead in italic over Work Sans, ruled hairlines, small-caps kickers, oversized serif numerals, a drifting halftone field, and asymmetric two-column rows. Reads need no wallet and render on load behind an error boundary. One modal serves both filings and stages the real hearing lifecycle, previewing the magistrate's draft ruling decoded from the receipt until it is entered. Transaction status is polled via `gen_getTransactionByHash` (no VM execution, no read-limit hit); docket polling is slow and pauses during a write. Leader rotation reads as "still in session," never an error.
 
-### The reading room (frontend)
+---
 
-Next.js 14 exported to static HTML, TypeScript, Tailwind, Framer Motion, lucide icons, genlayer-js 1.1.8.
-
-The look is editorial magazine: a warm near-black page, a muted terracotta accent, a Newsreader serif masthead set in italic over Work Sans body, ruled hairlines, small-caps kickers, oversized serif numerals as step markers, and a drifting halftone-dot field behind the masthead. Two-column asymmetric feature rows carry the procedure. It is meant to read like a printed law report, unlike anything else in the registry.
-
-Notes on conduct:
-- Reading needs no wallet; the docket renders on load, wrapped so a failed RPC degrades one section rather than the page.
-- One modal serves both filings: opening a grievance (deterministic, fast) and answering one (the AI write). The answer flow stages the real hearing lifecycle and previews the magistrate's draft ruling decoded from the receipt, marked as a draft until entered.
-- The two-party rule is surfaced in the UI: the defense form reminds you to answer from a wallet other than the claimant's, and a claimant-self-answer error maps to a plain message.
-- Status polling uses `gen_getTransactionByHash` (no VM execution, dodges the read rate limit); docket polling is slow and pauses while a write is in flight. Leader rotation reads as "still in session," never an error.
-
-### Holding session locally
-
-```bash
-# the contract
-pip install genvm-linter genlayer-test
-genvm-lint check contracts/contract.py
-gltest tests/integration/ -v -s --network studionet
-
-# the reading room
-cd frontend && npm install
-npm run dev      # localhost:3000
-npm run build    # static export into frontend/out
+```
+CLERK'S NOTES , running the court locally
+------------------------------------------------------------
+contract   pip install genvm-linter genlayer-test
+           genvm-lint check contracts/contract.py
+           gltest tests/integration/ -v -s --network studionet
+gallery    cd frontend && npm install && npm run dev
+deploy     python scripts/deploy.py        (signs with .env key, not the CLI)
+           python scripts/verify_read.py
+           python scripts/verify_write.py  (funds a 2nd wallet for the defense)
+publish    cd frontend && npm run deploy   (out/ -> gh-pages, --dotfiles)
+------------------------------------------------------------
 ```
 
-Deployment signs with the key in a repo-root `.env` (template in `.env.example`), not the CLI keychain. Because the defense must come from a second party, `verify_write.py` funds a fresh respondent from the deployer before filing the answer:
+Deployment signs with the key in a repo-root `.env` (see `.env.example`), never the CLI keychain. Because a defense must come from a second party, `verify_write.py` funds a fresh respondent from the deployer before filing the answer. Test GEN to file your own case: [testnet-faucet.genlayer.foundation](https://testnet-faucet.genlayer.foundation/).
 
-```bash
-python scripts/deploy.py        # deploy and verify the receipt
-python scripts/verify_read.py   # read gate
-python scripts/verify_write.py  # file grievance, fund respondent, AI defense, end to end
-```
-
-Ship the reading room to GitHub Pages from `frontend/`:
-
-```bash
-npm run deploy   # builds, pushes out/ to gh-pages with --dotfiles
-```
-
-### Citations
-
-| | |
-| --- | --- |
-| Court | https://warnedwarn.github.io/redress/ |
-| Contract | https://explorer-bradbury.genlayer.com/address/0x205651dEfaB269eDa5B1880E0a96f1C8aE777d6F |
-| Empaneling tx | https://explorer-bradbury.genlayer.com/tx/0x45a24c4dc08acd41f7323a32ab392e02f792abab5b559e36ccdec511b5446d08 |
-| Test GEN | https://testnet-faucet.genlayer.foundation/ |
-
-The magistrate is an AI ruling under validator consensus on a test network. Redress is not a court of law and nothing here is legal advice.
+_The magistrate is an AI ruling under validator consensus on a test network. Redress is not a court of law and nothing here is legal advice._
